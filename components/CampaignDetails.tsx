@@ -254,9 +254,10 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({
 
             // Generate all follow-ups
             const followUps = [];
-            for (let i = 1; i <= campaign.followUpIntervals.length; i++) {
+            const intervals = campaign.followUpIntervals || [];
+            for (let i = 1; i <= intervals.length; i++) {
                 const followUp = await generateFollowUpEmail(testLead, i, initial.subjectLine);
-                followUps.push({ ...followUp, day: campaign.followUpIntervals[i - 1] });
+                followUps.push({ ...followUp, day: intervals[i - 1] });
             }
 
             setPreviewData({ initial, followUps });
