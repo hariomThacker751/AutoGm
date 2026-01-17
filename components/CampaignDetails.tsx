@@ -232,17 +232,37 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({
     };
 
     const handleExpedite = async () => {
-        if (!confirm("⚡ Expedite Follow-ups?\n\nThis will make all pending follow-ups due immediately.")) return;
+        if (!confirm("⚡ Send Next Follow-up?\n\nThis will immediately send the next follow-up email in the sequence to all leads.")) return;
 
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/campaigns/${campaign.id}/fast-forward`, { method: 'POST' });
+            // Call new endpoint to get leads ready for next follow-up
+            const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/campaigns/${campaign.id}/send-next-followup`, { method: 'POST' });
             const data = await res.json();
-            if (data.success) {
-                toast.success('Campaign Expedited', { description: `${data.updatedCount} leads marked due now` });
-                await fetchPendingFollowUps();
+
+            if (data.count === 0) {
+                toast.info('No more follow-ups', { description: 'All leads have received all follow-ups in the sequence.' });
+                return;
             }
-        } catch (err: any) {
-            toast.error('Failed to expedite', { description: err.message });
+
+            // Automatically send the follow-ups
+            toast.info('Sending follow-ups...', { description: `Sending to ${data.count} leads` });
+            const { success, failed } = await onSendFollowUps(data.pendingFollowUps);
+
+            if (failed === 0) {
+                toast.success(`✅ Sent Follow-up #${data.pendingFollowUps[0]?.followUpNumber + 1}`, {
+                    description: `Sent to ${success} leads`
+                });
+            } else {
+                toast.warning('Finished with errors', {
+                    description: `Sent: ${success}, Failed: ${failed}`
+                });
+            }
+
+            // Refresh data
+            onRefresh();
+        } catch (error) {
+            console.error('Expedite error:', error);
+            toast.error('Failed to send follow-ups');
         }
     };
 

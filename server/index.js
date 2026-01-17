@@ -138,33 +138,35 @@ app.get('/campaigns/:id/analytics', (req, res) => {
     });
 });
 
-// DEBUG TOOL: Fast forward time for a campaign (make next follow-ups due now)
-app.post('/campaigns/:id/fast-forward', (req, res) => {
+// Send Next Follow-up: Finds all leads that have NOT received their next sequential follow-up yet
+app.post('/campaigns/:id/send-next-followup', (req, res) => {
     const { id } = req.params;
     const campaignLeads = Array.from(trackingData.values()).filter(l => l.campaignId === id);
-    let updatedCount = 0;
+    const leadsForNextFollowUp = [];
 
     campaignLeads.forEach(lead => {
-        if (lead.stopped) return;
+        if (lead.stopped || !lead.sentAt) return;
 
-        // Check if there are any pending follow-ups
-        const hasPending = lead.followUpSequence?.some(f => f.status === 'pending');
+        // Find the first pending follow-up (sequential)
+        const nextFollowUpIndex = lead.followUpSequence?.findIndex(f => f.status === 'pending');
 
-        if (hasPending && lead.sentAt) {
-            // Shift the original SEND time back by 30 days
-            // The 'pending' logic calculates due dates based on (lead.sentAt + interval)
-            // So moving lead.sentAt back ensures (sentAt + interval) < Now
-            const oldDate = new Date();
-            oldDate.setDate(oldDate.getDate() - 30);
-
-            lead.sentAt = oldDate.toISOString();
-            trackingData.set(lead.id, lead);
-            updatedCount++;
+        if (nextFollowUpIndex !== undefined && nextFollowUpIndex !== -1) {
+            leadsForNextFollowUp.push({
+                leadId: lead.id,
+                lead,
+                followUpIndex: nextFollowUpIndex,
+                followUpNumber: nextFollowUpIndex, // 1 = 1st follow-up, 2 = 2nd, etc.
+                dueDate: new Date().toISOString() // Mark as due now
+            });
         }
     });
 
-    console.log(`[DEBUG] Expedited ${updatedCount} leads in campaign ${id} (Shifted start date -30 days)`);
-    res.json({ success: true, updatedCount });
+    console.log(`[SEND-NEXT] Campaign ${id} has ${leadsForNextFollowUp.length} leads ready for next follow-up`);
+    res.json({
+        success: true,
+        pendingFollowUps: leadsForNextFollowUp,
+        count: leadsForNextFollowUp.length
+    });
 });
 
 // ============== LEAD/TRACKING ENDPOINTS ==============
