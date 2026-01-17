@@ -19,9 +19,6 @@ services:
     staticPublishPath: ./dist
     envVars:
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: autopersuade-backend
-          property: url
+        sync: false
       - key: VITE_GOOGLE_CLIENT_ID
         sync: false # User must set this in dashboard
