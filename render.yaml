@@ -14,7 +14,6 @@ services:
   - type: web
     name: autopersuade-frontend
     env: static
-    plan: free
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
     envVars:
