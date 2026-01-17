@@ -1,0 +1,27 @@
+services:
+  # Backend Service
+  - type: web
+    name: autopersuade-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server/index.js
+    envVars:
+      - key: PORT
+        value: 10000
+
+  # Frontend Service
+  - type: web
+    name: autopersuade-frontend
+    env: static
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: autopersuade-backend
+          property: url
+      - key: VITE_GOOGLE_CLIENT_ID
+        sync: false # User must set this in dashboard
