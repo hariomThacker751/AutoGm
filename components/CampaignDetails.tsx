@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
+import { generateSalesEmail, generateFollowUpEmail } from '../services/gemini';
 
 interface CampaignDetailsProps {
     campaign: Campaign;
@@ -50,6 +51,9 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({
     const [sendingFollowUps, setSendingFollowUps] = useState(false);
     const [testingEmail, setTestingEmail] = useState(false);
     const [showUploadSection, setShowUploadSection] = useState(false);
+    const [showPreview, setShowPreview] = useState(false);
+    const [previewData, setPreviewData] = useState<{ initial: any, followUps: any[] } | null>(null);
+    const [generatingPreview, setGeneratingPreview] = useState(false);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -229,6 +233,40 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({
         }
 
         setTestingEmail(false);
+    };
+
+    const handlePreviewEmails = async () => {
+        if (leads.length === 0) {
+            toast.error('Please upload a CSV first');
+            return;
+        }
+        if (!senderName.trim() || !senderCompany.trim()) {
+            toast.error('Please fill in your name and company');
+            return;
+        }
+
+        setGeneratingPreview(true);
+        const testLead = { ...leads[0], senderName: senderName.trim(), senderCompany: senderCompany.trim() };
+
+        try {
+            // Generate initial email
+            const initial = await generateSalesEmail(testLead);
+
+            // Generate all follow-ups
+            const followUps = [];
+            for (let i = 1; i <= campaign.followUpIntervals.length; i++) {
+                const followUp = await generateFollowUpEmail(testLead, i, initial.subjectLine);
+                followUps.push({ ...followUp, day: campaign.followUpIntervals[i - 1] });
+            }
+
+            setPreviewData({ initial, followUps });
+            setShowPreview(true);
+            toast.success('Preview generated!');
+        } catch (error: any) {
+            toast.error('Preview generation failed', { description: error?.message || 'Unknown error' });
+        }
+
+        setGeneratingPreview(false);
     };
 
     const handleExpedite = async () => {
@@ -490,12 +528,20 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({
                                 {/* Action Buttons */}
                                 <div className="flex gap-3">
                                     <button
+                                        onClick={handlePreviewEmails}
+                                        disabled={sendingCampaign || testingEmail || generatingPreview}
+                                        className="flex-1 py-3 bg-blue-50 hover:bg-blue-100 disabled:opacity-50 text-blue-700 font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors border border-blue-200"
+                                    >
+                                        {generatingPreview ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
+                                        Preview
+                                    </button>
+                                    <button
                                         onClick={handleTestEmail}
                                         disabled={sendingCampaign || testingEmail}
                                         className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 disabled:opacity-50 text-slate-700 font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors border border-slate-200"
                                     >
                                         {testingEmail ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
-                                        Test First
+                                        Test
                                     </button>
                                     <button
                                         onClick={launchCampaign}
@@ -616,6 +662,82 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({
                                 ))}
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            )}
+
+            {/* Preview Modal */}
+            {showPreview && previewData && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl">
+                        <div className="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+                            <h2 className="text-xl font-bold text-slate-800">Email Preview</h2>
+                            <button
+                                onClick={() => setShowPreview(false)}
+                                className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                            >
+                                <X className="w-5 h-5 text-slate-400" />
+                            </button>
+                        </div>
+
+                        <div className="p-6 space-y-6">
+                            {/* Initial Email */}
+                            <div className="border border-slate-200 rounded-xl overflow-hidden">
+                                <div className="bg-indigo-50 px-4 py-3 border-b border-indigo-100">
+                                    <h3 className="font-bold text-indigo-900 flex items-center gap-2">
+                                        <Mail className="w-4 h-4" />
+                                        Initial Email to {leads[0]?.recipientName}
+                                    </h3>
+                                </div>
+                                <div className="p-4 space-y-3">
+                                    <div>
+                                        <span className="text-xs font-bold text-slate-400 uppercase">Subject:</span>
+                                        <p className="font-semibold text-slate-800">{previewData.initial.subjectLine}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-xs font-bold text-slate-400 uppercase">Body:</span>
+                                        <div
+                                            className="mt-2 prose prose-sm max-w-none"
+                                            dangerouslySetInnerHTML={{ __html: previewData.initial.emailBody }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Follow-ups */}
+                            {previewData.followUps.map((followUp: any, index: number) => (
+                                <div key={index} className="border border-slate-200 rounded-xl overflow-hidden">
+                                    <div className="bg-amber-50 px-4 py-3 border-b border-amber-100">
+                                        <h3 className="font-bold text-amber-900 flex items-center gap-2">
+                                            <Send className="w-4 h-4" />
+                                            Follow-up #{index + 1} (Day {followUp.day})
+                                        </h3>
+                                    </div>
+                                    <div className="p-4 space-y-3">
+                                        <div>
+                                            <span className="text-xs font-bold text-slate-400 uppercase">Subject:</span>
+                                            <p className="font-semibold text-slate-800">{followUp.subjectLine}</p>
+                                        </div>
+                                        <div>
+                                            <span className="text-xs font-bold text-slate-400 uppercase">Body:</span>
+                                            <div
+                                                className="mt-2 prose prose-sm max-w-none"
+                                                dangerouslySetInnerHTML={{ __html: followUp.emailBody }}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="sticky bottom-0 bg-white border-t border-slate-200 px-6 py-4">
+                            <button
+                                onClick={() => setShowPreview(false)}
+                                className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors"
+                            >
+                                Close Preview
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
