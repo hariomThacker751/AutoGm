@@ -72,8 +72,8 @@ const CampaignList: React.FC<CampaignListProps> = ({
                                 key={campaign.id}
                                 onClick={() => onSelectCampaign(campaign)}
                                 className={`w-full text-left p-4 rounded-xl border transition-all duration-200 group ${isSelected
-                                        ? 'bg-indigo-50 border-indigo-200 ring-2 ring-indigo-500/20 shadow-sm'
-                                        : 'bg-white border-slate-100 hover:border-indigo-200 hover:shadow-sm'
+                                    ? 'bg-indigo-50 border-indigo-200 ring-2 ring-indigo-500/20 shadow-sm'
+                                    : 'bg-white border-slate-100 hover:border-indigo-200 hover:shadow-sm'
                                     }`}
                             >
                                 {/* Campaign Header */}
@@ -117,10 +117,10 @@ const CampaignList: React.FC<CampaignListProps> = ({
                                     {/* Open Rate Badge */}
                                     {campaign.totalLeads > 0 && (
                                         <div className={`ml-auto px-2 py-0.5 rounded-full text-xs font-bold ${openRate >= 50
-                                                ? 'bg-emerald-100 text-emerald-700'
-                                                : openRate >= 25
-                                                    ? 'bg-amber-100 text-amber-700'
-                                                    : 'bg-slate-100 text-slate-600'
+                                            ? 'bg-emerald-100 text-emerald-700'
+                                            : openRate >= 25
+                                                ? 'bg-amber-100 text-amber-700'
+                                                : 'bg-slate-100 text-slate-600'
                                             }`}>
                                             {openRate}%
                                         </div>
@@ -130,7 +130,7 @@ const CampaignList: React.FC<CampaignListProps> = ({
                                 {/* Follow-up Schedule */}
                                 <div className="mt-3 pt-3 border-t border-slate-100">
                                     <p className="text-xs text-slate-400">
-                                        <span className="font-medium">Follow-ups:</span> Day {campaign.followUpIntervals.join(', ')}
+                                        <span className="font-medium">Follow-ups:</span> Day {campaign.followUpIntervals?.join(', ') || 'None'}
                                     </p>
                                 </div>
                             </button>

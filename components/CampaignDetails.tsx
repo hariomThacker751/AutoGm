@@ -372,7 +372,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({
                     <div>
                         <h1 className="text-2xl font-bold text-slate-800">{campaign.name}</h1>
                         <p className="text-slate-500 mt-1">
-                            Follow-ups on day: <span className="font-medium text-slate-700">{campaign.followUpIntervals.join(', ')}</span>
+                            Follow-ups on day: <span className="font-medium text-slate-700">{campaign.followUpIntervals?.join(', ') || 'None'}</span>
                         </p>
                     </div>
                     <button
