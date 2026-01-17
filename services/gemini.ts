@@ -2,7 +2,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { FormData, EmailResponse } from "../types";
 
 // Initialize Gemini client using the environment variable API key
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY });
 
 export const generateSalesEmail = async (data: FormData): Promise<EmailResponse> => {
   const modelId = "gemini-2.5-flash";
