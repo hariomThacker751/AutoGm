@@ -37,8 +37,9 @@ ${data.senderName}<br>${data.senderCompany}
 - Use <br><br> between paragraphs.
 
 **SUBJECT LINE:**
-- Just their first name. "Hi ${data.recipientName}" or just "${data.recipientName}"
-- OR: A 2-3 word casual phrase like "quick thought" or "saw your stuff"
+- STRICTLY use this format: "Hi ${data.recipientName}"
+- Example: "Hi James"
+- Do NOT use anything else. No "quick thought", no "question". JUST "Hi ${data.recipientName}".
 
 **EXAMPLE OF A PERFECT EMAIL:**
 
