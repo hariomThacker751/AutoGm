@@ -36,10 +36,18 @@ ${data.senderName}<br>${data.senderCompany}
 - NO multiple CTAs. Just ONE simple question.
 - Use <br><br> between paragraphs.
 
-**SUBJECT LINE:**
-- STRICTLY use this format: "Hi ${data.recipientName}"
-- Example: "Hi James"
-- Do NOT use anything else. No "quick thought", no "question". JUST "Hi ${data.recipientName}".
+**SUBJECT LINE (CRITICAL - MUST FOLLOW EXACTLY):**
+YOU MUST USE EXACTLY THIS FORMAT: "Hi ${data.recipientName}"
+
+Examples:
+- If recipient is "James" → Subject MUST be: "Hi James"
+- If recipient is "Sarah" → Subject MUST be: "Hi Sarah"
+
+ABSOLUTELY FORBIDDEN:
+❌ "quick thought"
+❌ "question"
+❌ "saw your profile"
+❌ ANY variation except "Hi {FirstName}"
 
 **EXAMPLE OF A PERFECT EMAIL:**
 
@@ -47,9 +55,9 @@ Subject: Hi James
 
 I was checking out your LinkedIn profile and thought this could be of value to you.<br><br>We built a tool called Uple, which is like ZoomInfo but with real-time email verification, and we're really affordable.<br><br>Are you open to trying it out at no cost?<br><br>${data.senderName}<br>${data.senderCompany}
 
-**OUTPUT (JSON):**
+**OUTPUT (JSON) - SUBJECT LINE MUST BE "Hi ${data.recipientName}":**
 {
-  "subjectLine": "short casual subject",
+  "subjectLine": "Hi ${data.recipientName}",
   "emailBody": "ultra-short email body with <br><br> breaks",
   "strategyExplanation": "why this will get a reply"
 }
