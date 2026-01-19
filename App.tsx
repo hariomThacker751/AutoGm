@@ -17,7 +17,15 @@ const App: React.FC = () => {
   const [emailData, setEmailData] = useState<EmailResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [lastFormData, setLastFormData] = useState<FormData | null>(null);
-  const [activeView, setActiveView] = useState<'campaign' | 'dashboard' | 'campaigns'>('campaign');
+  const [activeView, setActiveView] = useState<'campaign' | 'dashboard' | 'campaigns'>(() => {
+    const saved = localStorage.getItem('activeView');
+    return (saved === 'dashboard' || saved === 'campaigns') ? saved : 'campaign';
+  });
+
+  // Persist activeView to localStorage
+  useEffect(() => {
+    localStorage.setItem('activeView', activeView);
+  }, [activeView]);
 
   // Bulk Campaign State
   const [leads, setLeads] = useState<ImportedLead[]>([]);

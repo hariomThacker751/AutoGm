@@ -25,6 +25,9 @@ const CampaignManager: React.FC<CampaignManagerProps> = ({
     onTestEmail
 }) => {
     const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+    const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(() => {
+        return localStorage.getItem('selectedCampaignId');
+    });
     const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
     const [loading, setLoading] = useState(true);
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -56,6 +59,23 @@ const CampaignManager: React.FC<CampaignManagerProps> = ({
     useEffect(() => {
         fetchCampaigns();
     }, []);
+
+    // Persist selected campaign ID to localStorage
+    useEffect(() => {
+        if (selectedCampaign) {
+            localStorage.setItem('selectedCampaignId', selectedCampaign.id);
+        }
+    }, [selectedCampaign]);
+
+    // When campaigns load, restore the previously selected campaign
+    useEffect(() => {
+        if (campaigns.length > 0 && selectedCampaignId && !selectedCampaign) {
+            const found = campaigns.find(c => c.id === selectedCampaignId);
+            if (found) {
+                setSelectedCampaign(found);
+            }
+        }
+    }, [campaigns, selectedCampaignId, selectedCampaign]);
 
     const createCampaign = async () => {
         if (!newCampaignName.trim() || !senderName.trim() || !senderCompany.trim()) {
