@@ -58,6 +58,7 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [leads]);
 
+  const [autoSendEnabled, setAutoSendEnabled] = useState(false);
 
   // NOTE: We no longer auto-load from localStorage as tokens expire after ~1 hour
   // User must sign in each session for fresh token
@@ -67,12 +68,38 @@ const App: React.FC = () => {
   }, []);
 
   const login = useGoogleLogin({
-    onSuccess: (codeResponse) => {
-      console.log('✅ Google login successful, token received');
-      setUserInfo(codeResponse);
-      // Don't persist to localStorage - tokens expire quickly
+    flow: 'auth-code',  // Use authorization code flow for refresh tokens
+    onSuccess: async (codeResponse) => {
+      console.log('✅ Google auth code received, exchanging for tokens...');
+      try {
+        // Send auth code to server for token exchange
+        const response = await fetch(`${API_URL}/auth/token`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: codeResponse.code })
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          console.log('✅ Tokens stored, auto-send enabled:', data.autoSendEnabled);
+          setUserInfo({
+            access_token: data.access_token,
+            email: data.user.email,
+            name: data.user.name
+          });
+          setAutoSendEnabled(data.autoSendEnabled);
+          toast.success('Signed in successfully!', {
+            description: data.autoSendEnabled ? 'Auto-send is enabled' : undefined
+          });
+        } else {
+          throw new Error(data.error || 'Token exchange failed');
+        }
+      } catch (error: any) {
+        console.error('❌ Token exchange failed:', error);
+        toast.error('Sign-in failed', { description: error.message });
+      }
     },
-    scope: 'https://www.googleapis.com/auth/gmail.send',
+    scope: 'https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
     onError: (error) => {
       console.error('❌ Login Failed:', error);
       toast.error('Google login failed. Please try again.');
@@ -81,6 +108,7 @@ const App: React.FC = () => {
 
   const logout = () => {
     setUserInfo(null);
+    setAutoSendEnabled(false);
     localStorage.removeItem('gmail_token');
     console.log('Logged out');
   };
@@ -430,6 +458,17 @@ const App: React.FC = () => {
                   <Pause className="w-3 h-3 fill-current" />
                   Stop
                 </button>
+              </div>
+            )}
+
+            {/* Auto-send Status */}
+            {autoSendEnabled && (
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full border border-emerald-200">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                Auto-Send On
               </div>
             )}
 

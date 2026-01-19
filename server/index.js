@@ -2,12 +2,105 @@ import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import { supabase } from './db.js';
+import { startScheduler } from './scheduler.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(bodyParser.json());
+
+// ============== AUTH ENDPOINTS ==============
+
+// Exchange authorization code for tokens
+app.post('/auth/token', async (req, res) => {
+    try {
+        const { code, userEmail, redirectUri } = req.body;
+
+        if (!code) {
+            return res.status(400).json({ error: 'Authorization code is required' });
+        }
+
+        // Exchange code for tokens
+        const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                client_id: process.env.GOOGLE_CLIENT_ID,
+                client_secret: process.env.GOOGLE_CLIENT_SECRET,
+                code,
+                grant_type: 'authorization_code',
+                redirect_uri: redirectUri || 'postmessage'
+            })
+        });
+
+        if (!tokenResponse.ok) {
+            const error = await tokenResponse.json();
+            console.error('[AUTH] Token exchange failed:', error);
+            return res.status(400).json({ error: error.error_description || 'Token exchange failed' });
+        }
+
+        const tokens = await tokenResponse.json();
+        const expiresAt = new Date(Date.now() + (tokens.expires_in * 1000));
+
+        // Get user info
+        const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+            headers: { 'Authorization': `Bearer ${tokens.access_token}` }
+        });
+        const userInfo = await userInfoResponse.json();
+
+        // Upsert user with tokens
+        const { data: user, error: upsertError } = await supabase
+            .from('users')
+            .upsert({
+                email: userInfo.email,
+                name: userInfo.name,
+                access_token: tokens.access_token,
+                refresh_token: tokens.refresh_token,
+                token_expires_at: expiresAt.toISOString()
+            }, {
+                onConflict: 'email'
+            })
+            .select()
+            .single();
+
+        if (upsertError) throw upsertError;
+
+        console.log(`[AUTH] ✓ Tokens stored for user: ${userInfo.email}`);
+        res.json({
+            success: true,
+            user: {
+                email: userInfo.email,
+                name: userInfo.name
+            },
+            access_token: tokens.access_token,
+            autoSendEnabled: !!tokens.refresh_token
+        });
+    } catch (error) {
+        console.error('[AUTH] Error:', error);
+        res.status(500).json({ error: 'Authentication failed' });
+    }
+});
+
+// Check auto-send status
+app.get('/auth/status', async (req, res) => {
+    try {
+        const { email } = req.query;
+        if (!email) {
+            return res.json({ autoSendEnabled: false });
+        }
+
+        const { data: user } = await supabase
+            .from('users')
+            .select('refresh_token')
+            .eq('email', email)
+            .single();
+
+        res.json({ autoSendEnabled: !!user?.refresh_token });
+    } catch (error) {
+        res.json({ autoSendEnabled: false });
+    }
+});
 
 // ============== CAMPAIGN ENDPOINTS ==============
 
@@ -591,4 +684,11 @@ app.listen(PORT, () => {
     console.log('   GET  /campaigns/:id/pending - Get pending follow-ups');
     console.log('   POST /follow-up-sent    - Mark follow-up sent');
     console.log('   💾 Using Supabase for persistent storage');
+
+    // Start the automatic follow-up scheduler
+    if (process.env.GOOGLE_CLIENT_SECRET && process.env.GEMINI_API_KEY) {
+        startScheduler();
+    } else {
+        console.log('   ⚠️  Auto-scheduler disabled: Missing GOOGLE_CLIENT_SECRET or GEMINI_API_KEY');
+    }
 });
