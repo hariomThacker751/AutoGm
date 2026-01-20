@@ -70,15 +70,24 @@ const App: React.FC = () => {
   const login = useGoogleLogin({
     flow: 'auth-code',  // Use authorization code flow for refresh tokens
     onSuccess: async (codeResponse) => {
-      console.log('✅ Google auth code received, exchanging for tokens...');
+      console.log('✅ Google auth code received:', codeResponse);
+      const toastId = toast.loading('Authenticating with server...');
+
       try {
+        console.log(`📡 Sending auth code to ${API_URL}/auth/token...`);
         // Send auth code to server for token exchange
         const response = await fetch(`${API_URL}/auth/token`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code: codeResponse.code })
+          body: JSON.stringify({
+            code: codeResponse.code,
+            redirectUri: window.location.origin
+          })
         });
+
+        console.log('📡 Response status:', response.status);
         const data = await response.json();
+        console.log('📡 Response data:', data);
 
         if (data.success) {
           console.log('✅ Tokens stored, auto-send enabled:', data.autoSendEnabled);
@@ -88,15 +97,21 @@ const App: React.FC = () => {
             name: data.user.name
           });
           setAutoSendEnabled(data.autoSendEnabled);
+          toast.dismiss(toastId);
           toast.success('Signed in successfully!', {
-            description: data.autoSendEnabled ? 'Auto-send is enabled' : undefined
+            description: data.autoSendEnabled ? 'Auto-send is enabled' : undefined,
+            duration: 3000
           });
         } else {
           throw new Error(data.error || 'Token exchange failed');
         }
       } catch (error: any) {
+        toast.dismiss(toastId);
         console.error('❌ Token exchange failed:', error);
-        toast.error('Sign-in failed', { description: error.message });
+        toast.error('Sign-in failed', {
+          description: error.message || 'Check console for details',
+          duration: 5000
+        });
       }
     },
     scope: 'https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
