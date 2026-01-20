@@ -12,6 +12,11 @@ app.use(bodyParser.json());
 
 // ============== AUTH ENDPOINTS ==============
 
+// Health check
+app.get('/', (req, res) => {
+    res.json({ status: 'ok', message: 'Autopersuade Backend Running' });
+});
+
 // Exchange authorization code for tokens
 app.post('/auth/token', async (req, res) => {
     try {
@@ -675,6 +680,8 @@ app.get('/lead/:id', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch lead' });
     }
 });
+
+console.log('🔄 Server starting up...');
 
 app.listen(PORT, () => {
     console.log(`📡 Tracking Server running on http://localhost:${PORT}`);
