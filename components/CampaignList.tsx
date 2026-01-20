@@ -10,7 +10,7 @@ interface CampaignListProps {
 }
 
 const CampaignList: React.FC<CampaignListProps> = ({
-    campaigns,
+    campaigns = [],
     selectedCampaignId,
     onSelectCampaign,
     onCreateCampaign

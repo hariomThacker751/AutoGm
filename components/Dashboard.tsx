@@ -127,7 +127,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onBack }) => {
                             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Pipeline</span>
                         </div>
                         <div className="text-3xl font-bold text-slate-800 relative">
-                            ${((stats?.leads.length || 0) * 2500).toLocaleString()}
+                            ${((stats?.leads?.length || 0) * 2500).toLocaleString()}
                         </div>
                         <p className="text-sm text-slate-500 mt-1">Est. Value ($2.5k avg)</p>
                     </div>
@@ -177,10 +177,10 @@ const Dashboard: React.FC<DashboardProps> = ({ onBack }) => {
                             <Users className="w-5 h-5 text-slate-400" />
                             Email Details
                         </h2>
-                        <span className="text-sm text-slate-400">{stats?.leads.length || 0} emails tracked</span>
+                        <span className="text-sm text-slate-400">{stats?.leads?.length || 0} emails tracked</span>
                     </div>
 
-                    {stats?.leads.length === 0 ? (
+                    {!stats?.leads?.length ? (
                         <div className="p-12 text-center">
                             <Mail className="w-12 h-12 text-slate-300 mx-auto mb-4" />
                             <p className="text-slate-500">No emails tracked yet. Send your first campaign!</p>
@@ -199,7 +199,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onBack }) => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
-                                    {stats?.leads.map((lead) => (
+                                    {stats?.leads?.map((lead) => (
                                         <tr key={lead.id} className="hover:bg-slate-50 transition-colors">
                                             <td className="px-6 py-4">
                                                 <div className="font-medium text-slate-800">{lead.recipientName}</div>
