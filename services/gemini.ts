@@ -28,9 +28,8 @@ PICK ONE OF THESE FOR SENTENCE 2:
 - "We build AI that handles your sales pipeline end-to-end, like Apollo but without lifting a finger."
 - "We build lead gen systems that work around the clock, like Salesloft but fully automated."
 
-[SENTENCE 3 - Pick one:]
-- "Are you open to trying it out at no cost?"
-- "Worth a quick look?"
+[SENTENCE 3 - USE THIS EXACTLY:]
+"Are you open to trying it out at no cost?"
 
 [SIGNATURE:]
 ${data.senderName}
