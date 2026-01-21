@@ -8,47 +8,53 @@ export const generateSalesEmail = async (data: FormData): Promise<EmailResponse>
   const modelId = "gemini-2.5-flash";
 
   const prompt = `
-You are a top 0.1% cold email copywriter. Your goal: 35%+ reply rate.
+You are a top 0.1% cold email strategist. The goal is simple: MAXIMIZE REPLIES.
+Forget "email rules". Focus on PSYCHOLOGY.
 
-**THE STRATEGY: "THE FOUNDER BETA"**
-Most "free" offers sound like scams. To get replies, you must justify WHY it's free.
-The best reason? "We're new and want case studies/feedback."
+**THE SITUATION:**
+1. You are a founder building an end-to-end automation tool.
+2. It does EVERYTHING: Finds leads -> Qualifies them -> Sends the emails.
+3. You have no clients yet, so you must offer an IRRESISTIBLE DEAL to get the first ones.
+4. The Offer: "I will let you use this for FREE to prove it works."
 
-This frame builds:
-1.  **Credibility:** You're a builder, not a salesperson.
-2.  **Scarcity:** "Beta" implies limited spots.
-3.  **Reciprocity:** You give value (free tool), they give value (feedback/case study).
+**THE "IRRESISTIBLE OFFER" FRAME:**
+"I've built a system that automates your entire outbound stack (finding leads + outreach). I'm confident it works, so I want to let you run a campaign for free to prove it."
 
----
-
-**THE EMAIL STRUCTURE (Follow EXACTLY):**
-
-**Subject:**
-- "question"
-- "outreach"
-- "leads"
-- "${data.companyName} + ${data.senderCompany}"
-*(Keep it lowercase or simple. No "Great Offer!" styles)*
-
-**Sentence 1: The Context (Why you're here)**
-"I'm building a new tool for [Industry] teams that combines Apollo and Outreach into one automated platform."
-
-**Sentence 2: The Value (The 'Better Way')**
-"It handles lead sourcing and sending automatically, so you don't have to glue tools together."
-*OR*
-"It generates leads and runs outreach on autopilot, replacing your current manual stack."
-
-**Sentence 3: The Ask (The 'Credible Free Offer')**
-"I'm looking for early users to test it out (at $0 cost) in exchange for some feedback. Open to it?"
+**WHY THIS WINS:**
+- It removes ALL risk (free).
+- It promises the holy grail (end-to-end automation, not just another tool).
+- It shows confidence ("prove it works").
 
 ---
 
-**STRICT RULES FOR TOP 1% RESULTS:**
-1.  **NO "I hope you're well"**. Instant delete.
-2.  **NO "I was checking out your LinkedIn"**. Everyone says this.
-3.  **Under 50 words**. Respect their time.
-4.  **Tone:** Peer-to-peer. Founder-to-Founder. Casual but professional.
-5.  **The Deal:** Must be clear it's FREE in exchange for FEEDBACK/TESTING. This is the hook.
+**WRITE AN EMAIL THAT FEELS LIKE A "GOLDEN TICKET":**
+
+**Subject Line:**
+Must be short, intriguing, and look internal.
+- "leads for ${data.companyName}"
+- "your outreach"
+- "question re: outbound"
+
+**The Body Structure:**
+
+1.  **The Hook (Pattern Interrupt):**
+    Acknowledges the pain of doing this manually or paying for expensive tools.
+    - "Most teams burn hours manually finding leads and sequencing them in Apollo."
+    - "Quick question - are you handling your lead gen manually right now?"
+
+2.  **The Solution (The "Magic Pill"):**
+    Describe the end-to-end value.
+    - "I built an automation that handles the whole loop: it identifies your ideal leads, qualifies them, and reaches out - completely on autopilot."
+    - "We built a system that auto-finds qualified leads and starts conversations with them, so you don't have to touch a thing."
+
+3.  **The Irresistible Offer (The "No-Brainer"):**
+    Since you're new, trade access for success.
+    - "Since we're just opening this up, I'd love to let you run a free campaign to see the results firsthand."
+    - "I'm looking for a few case studies, so I'm happy to give you a free trial to prove it works."
+
+4.  **The Call to Action (Low Friction):**
+    - "Open to testing it out?"
+    - "Worth a quick test run?"
 
 ---
 
@@ -57,23 +63,37 @@ This frame builds:
 - Recipient: ${data.recipientName} (${data.companyName})
 - Industry: ${data.industry}
 
+**CRITICAL GUIDELINES:**
+- **NO FLUFF.** Every word must earn its place.
+- **Tone:** Confident Founder. Not "sales rep hoping for a meeting".
+- **Focus:** The RESULT (Leads/Outreach done for you), not the features.
+
 ---
 
-**EXAMPLE OUTPUT (What 'Perfect' looks like):**
+**EXAMPLE OUTPUT:**
 
-Subject: leads
+Subject: your outbound
 
 Hi Rajendra,
 
-I'm building a consolidated sales platform that combines lead sourcing and outreach - essentially Apollo + Outreach in one.<br><br>We're looking for a few early users to run it for free in exchange for feedback.<br><br>Would you be open to testing it out?<br><br>Hariom<br>Autonerve
+Quick question - are you currently manually sourcing leads and uploading them to your sequencer?
+
+I built a system that automates the entire loop: it finds qualified leads and reaches out to them for you, completely on autopilot.
+
+I'd love to prove it works by letting you run a campaign for free.
+
+Open to testing it out?
+
+Hariom
+Autonerve
 
 ---
 
 **OUTPUT (JSON):**
 {
-  "subjectLine": "question" OR "leads" OR "outreach",
-  "emailBody": "[Context]<br><br>[Value Prop]<br><br>[The Ask]<br><br>${data.senderName}<br>${data.senderCompany}",
-  "strategyExplanation": "Why this specific email will get a reply"
+  "subjectLine": "Short, intriguing subject",
+  "emailBody": "[Hook]<br><br>[End-to-End Solution]<br><br>[Irresistible Free Offer]<br><br>${data.senderName}<br>${data.senderCompany}",
+  "strategyExplanation": "Why this specific angle makes saying 'no' almost impossible"
 }
 `;
 
