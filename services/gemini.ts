@@ -8,76 +8,70 @@ export const generateSalesEmail = async (data: FormData): Promise<EmailResponse>
   const modelId = "gemini-2.5-flash";
 
   const prompt = `
-You are writing a cold email that will actually get a response.
+Write a cold email that gets replies.
 
-Here's the thing: Most cold emails fail because they SOUND like cold emails.
-- "I was checking out your LinkedIn profile" = DEAD. Everyone says this.
-- "We build solutions that..." = CORPORATE. No one talks like this.
-- "I hope this finds you well" = INSTANT DELETE.
+**THE ORIGINAL EMAIL THAT GENERATED $1M ARR:**
 
-Your email needs to feel like a quick note from someone who genuinely thinks they can help. Not a pitch. Not a template. A real message.
+Subject: Hi James
 
----
+I was checking out your LinkedIn profile and thought this could be of value to you.
 
-**THE PSYCHOLOGY:**
+We built a tool called Uple, which is like ZoomInfo but with real-time email verification, and we're really affordable.
 
-The recipient gets 50+ emails a day. They scan for 2 seconds and decide: delete or read?
+Are you open to trying it out at no cost?
 
-What makes them read:
-- It's SHORT (under 35 words)
-- It feels PERSONAL (not mass-sent)
-- It's EASY to respond to (yes/no question)
-- There's NO RISK (free offer)
+Will
+UpLead
 
-What makes them delete:
-- Long paragraphs
-- Corporate speak
-- Obvious templates
-- Pushy asks
+**WHY IT WORKS:**
+1. Simple opening - no fake flattery
+2. Clear comparison - "like ZoomInfo but..." (instant understanding)
+3. Specific differentiator - "real-time email verification" + "affordable"
+4. Zero-risk ask - "at no cost"
+5. 35 words - respects their time
 
 ---
 
-**YOUR EMAIL (3 PARTS):**
+**YOUR USP:**
+You build an automation system that:
+1. Finds and generates leads for them
+2. Reaches out to those leads automatically
+3. They can try it at zero cost
 
-**OPENING (Pick the vibe that fits):**
-Choose ONE. Make it feel natural, not templated:
-
-- "Quick thought for you."
-- "Hey - stumbled across your company and had an idea."
-- "Random, but I think this could help."
-- "Saw what you're doing at ${data.companyName} - pretty cool."
-
-DO NOT say "I was checking out your LinkedIn profile" - it's overused and sounds fake.
-
-**THE PITCH (One sentence, conversational):**
-Explain what you do like you're telling a friend at a coffee shop. Compare to something they know.
-
-Good examples:
-- "We built something that basically runs your outreach for you - like Outreach.io but on autopilot."
-- "We've got this tool that handles cold email end-to-end - think Apollo but you don't have to touch anything."
-- "Basically, we automate the boring parts of sales outreach - like having Salesloft but hands-free."
-
-Notice the casual language: "basically", "we've got", "think X but Y". This is how humans talk.
-
-**THE ASK (Super easy to say yes to):**
-- "Open to trying it at no cost?"
-- "Interested in a free trial?"
+This is like having Apollo + Outreach.io combined, running on autopilot.
 
 ---
 
-**SIGNATURE:**
+**WRITE THIS EMAIL:**
+
+Subject: Hi ${data.recipientName}
+
+[OPENING - one of these:]
+- "Quick one for you."
+- "Thought this might help."
+- "Random reach out, but hear me out."
+
+[PITCH - be SPECIFIC about value:]
+The pitch must clearly say WHAT it does. Not vague "automation" - specific value.
+
+GOOD: "We built a system that finds leads and reaches out to them for you - like having Apollo and Outreach.io running together, hands-free."
+
+BAD: "We build automation that helps with outreach" (too vague)
+
+[ASK - zero risk:]
+"Want to try it at zero cost?"
+
+[SIGNATURE:]
 ${data.senderName}
 ${data.senderCompany}
 
 ---
 
-**THE FINAL EMAIL SHOULD LOOK LIKE THIS:**
+**EXACT OUTPUT EXAMPLE:**
 
-Subject: Hi ${data.recipientName}
+Subject: Hi Rajendra
 
-Quick thought for you.<br><br>We built something that runs your outreach on autopilot - basically like Outreach.io but hands-free.<br><br>Open to trying it at no cost?<br><br>${data.senderName}<br>${data.senderCompany}
-
-That's it. 28 words. No fluff. Easy yes or no.
+Quick one for you.<br><br>We built a system that finds leads and reaches out to them automatically - like Apollo + Outreach.io combined, but you don't touch a thing.<br><br>Want to try it at zero cost?<br><br>Hariom<br>Autonerve
 
 ---
 
@@ -89,32 +83,31 @@ ${data.keyPainPoint ? `- Note: ${data.keyPainPoint}` : ''}
 
 ---
 
-**RULES:**
-1. Subject line = "Hi ${data.recipientName}" ONLY
-2. NEVER use their name in the body (subject already greets them)
-3. MUST mention Outreach.io, Apollo, or Salesloft as comparison
-4. Under 35 words in body (excluding signature)
-5. Use <br><br> between sentences
-6. Sound like a quick note, not a sales pitch
+**STRICT RULES:**
+1. Subject = "Hi ${data.recipientName}" only
+2. NO name in body
+3. Pitch MUST mention "finds leads" AND "reaches out" - both parts of the value
+4. MUST compare to Apollo, Outreach.io, or Salesloft
+5. ASK must include "zero cost" or "no cost"
+6. Under 40 words in body
+7. Use <br><br> between sentences
 
 ---
 
-**BANNED PHRASES (these scream "TEMPLATE"):**
-- "I was checking out your LinkedIn profile"
-- "I hope this email finds you well"
-- "I wanted to reach out"
+**BANNED (instant delete triggers):**
+- "I was checking out your LinkedIn" (overused)
+- "I hope this finds you well"
 - "We build automations that..."
-- "AI-powered sales automation"
-- "drive leads and generate sales"
-- "like having a dedicated employee"
+- "AI-powered" / "AI sales automation"
+- Any sentence over 20 words
 
 ---
 
 **OUTPUT (JSON):**
 {
   "subjectLine": "Hi ${data.recipientName}",
-  "emailBody": "[Natural opening]<br><br>[Conversational pitch with competitor comparison]<br><br>[Easy ask]<br><br>${data.senderName}<br>${data.senderCompany}",
-  "strategyExplanation": "Why this will get a reply"
+  "emailBody": "[Short opening]<br><br>[Specific pitch: finds leads + reaches out + comparison]<br><br>[Zero cost ask]<br><br>${data.senderName}<br>${data.senderCompany}",
+  "strategyExplanation": "Why this specific email will get a reply"
 }
 `;
 
