@@ -8,58 +8,88 @@ export const generateSalesEmail = async (data: FormData): Promise<EmailResponse>
   const modelId = "gemini-2.5-flash";
 
   const prompt = `
-You are writing a cold email that reads like a text from a friend, not a marketing pitch.
+Generate a 3-sentence cold email. Follow the template EXACTLY.
 
-**THE GOAL:** Generate a response. That's it. No selling. Just start a conversation.
+---
+
+**TEMPLATE TO FOLLOW:**
+
+Subject: Hi ${data.recipientName}
+
+[SENTENCE 1 - Pick one of these EXACTLY:]
+- "I was checking out your LinkedIn profile and thought this could be of value to you."
+- "Came across ${data.companyName} and had a quick thought."
+
+[SENTENCE 2 - USE THIS EXACT STRUCTURE:]
+"We build [automations/AI tools] that [what it does], like [Outreach.io/Apollo/Salesloft] but [differentiator]."
+
+PICK ONE OF THESE FOR SENTENCE 2:
+- "We build automations that run your outreach on autopilot, like Outreach.io but completely hands-off."
+- "We build AI that handles your sales pipeline end-to-end, like Apollo but without lifting a finger."
+- "We build lead gen systems that work around the clock, like Salesloft but fully automated."
+
+[SENTENCE 3 - Pick one:]
+- "Are you open to trying it out at no cost?"
+- "Worth a quick look?"
+
+[SIGNATURE:]
+${data.senderName}
+${data.senderCompany}
+
+---
+
+**FORBIDDEN PHRASES (NEVER USE THESE):**
+❌ "like having a dedicated employee"
+❌ "like an extra salesperson"
+❌ "like having a team member"
+❌ "like a tireless worker"
+❌ "24/7 to get you more conversations"
+❌ "AI sales automation"
+
+These phrases are BANNED. If you use them, YOU FAIL.
+
+---
+
+**REQUIRED COMPETITOR NAMES (MUST USE ONE):**
+✅ Outreach.io
+✅ Apollo
+✅ Salesloft
+✅ ZoomInfo
+✅ HubSpot
+
+You MUST mention one of these competitor names in sentence 2.
+
+---
 
 **CONTEXT:**
-- You are: ${data.senderName} from ${data.senderCompany}
-- Writing to: ${data.recipientName} at ${data.companyName} (${data.industry})
-- Your offer: AI-powered sales automation (like an AI employee that does outreach 24/7)
-${data.keyPainPoint ? `- Their pain point: ${data.keyPainPoint}` : ''}
+- From: ${data.senderName} at ${data.senderCompany}
+- To: ${data.recipientName} at ${data.companyName} (${data.industry})
+${data.keyPainPoint ? `- Note: ${data.keyPainPoint}` : ''}
 
-**THE WINNING FORMULA (FOLLOW THIS EXACTLY):**
+---
 
-Email Body Structure (3-4 sentences MAX):
-1. **Opening:** Start with a simple observation. Something like "I was checking out your profile..." or "Saw you're in ${data.industry}..."
-2. **The Pitch (1 sentence):** Explain what you built and how it helps. Compare to something they know. Example: "We built X, which is like [known thing] but [key difference]."
-3. **The Ask:** One simple question. "Are you open to trying it out at no cost?" or "Worth a quick look?"
+**RULES:**
+1. Subject = "Hi ${data.recipientName}" (nothing else)
+2. DO NOT use ${data.recipientName}'s name in the body
+3. Sentence 2 MUST contain Outreach.io, Apollo, Salesloft, ZoomInfo, or HubSpot
+4. Use <br><br> between each sentence
+5. Max 40 words in body (before signature)
 
-Signature:
-${data.senderName}<br>${data.senderCompany}
+---
 
-**WRITING RULES:**
-- MAX 50 words in the body (before signature). Shorter = better.
-- Write like you're texting a friend who happens to be a business owner.
-- NO formal greetings. NO "I hope this finds you well".
-- NO buzzwords. NO "leverage", "unlock", "boost", "transform", "comprehensive".
-- NO multiple CTAs. Just ONE simple question.
-- Use <br><br> between paragraphs.
-
-**SUBJECT LINE (CRITICAL - MUST FOLLOW EXACTLY):**
-YOU MUST USE EXACTLY THIS FORMAT: "Hi ${data.recipientName}"
-
-Examples:
-- If recipient is "James" → Subject MUST be: "Hi James"
-- If recipient is "Sarah" → Subject MUST be: "Hi Sarah"
-
-ABSOLUTELY FORBIDDEN:
-❌ "quick thought"
-❌ "question"
-❌ "saw your profile"
-❌ ANY variation except "Hi {FirstName}"
-
-**EXAMPLE OF A PERFECT EMAIL:**
+**EXAMPLE OUTPUT:**
 
 Subject: Hi James
 
-I was checking out your LinkedIn profile and thought this could be of value to you.<br><br>We built a tool called Uple, which is like ZoomInfo but with real-time email verification, and we're really affordable.<br><br>Are you open to trying it out at no cost?<br><br>${data.senderName}<br>${data.senderCompany}
+I was checking out your LinkedIn profile and thought this could be of value to you.<br><br>We build automations that run your outreach on autopilot, like Outreach.io but completely hands-off.<br><br>Are you open to trying it out at no cost?<br><br>Will<br>UpLead
 
-**OUTPUT (JSON) - SUBJECT LINE MUST BE "Hi ${data.recipientName}":**
+---
+
+**YOUR OUTPUT (JSON):**
 {
   "subjectLine": "Hi ${data.recipientName}",
-  "emailBody": "ultra-short email body with <br><br> breaks",
-  "strategyExplanation": "why this will get a reply"
+  "emailBody": "[Sentence 1]<br><br>[Sentence 2 with Outreach.io/Apollo/Salesloft]<br><br>[Sentence 3]<br><br>${data.senderName}<br>${data.senderCompany}",
+  "strategyExplanation": "Brief reason"
 }
 `;
 
@@ -71,6 +101,7 @@ I was checking out your LinkedIn profile and thought this could be of value to y
       contents: prompt,
       config: {
         responseMimeType: "application/json",
+        temperature: 0.2,
         responseSchema: {
           type: Type.OBJECT,
           properties: {
