@@ -8,106 +8,62 @@ export const generateSalesEmail = async (data: FormData): Promise<EmailResponse>
   const modelId = "gemini-2.5-flash";
 
   const prompt = `
-Write a cold email that gets replies.
+Write a cold email from a founder to a founder.
 
-**THE ORIGINAL EMAIL THAT GENERATED $1M ARR:**
+**THE OUTCOME WE WANT:** 
+A reply saying "Sure, send me a demo" or "I'm open to seeing it".
 
-Subject: Hi James
+**THE PROBLEM WITH MOST EMAILS:**
+They sound like sales pitches ("We help you do X").
+They are generic ("I saw your LinkedIn").
+They focus on features ("We have AI").
 
-I was checking out your LinkedIn profile and thought this could be of value to you.
+**THE WINNING ANGLE (THE "FOUNDER FRAME"):**
+You are a builder who solved a problem. You are sharing it with a peer.
+- **Identify the pain:** Paying for Apollo + Outreach + heavily manual work.
+- **The solution:** A single tool that does both, automatically.
+- **The specific benefit:** "You don't touch a thing" / "Runs on autopilot".
 
-We built a tool called Uple, which is like ZoomInfo but with real-time email verification, and we're really affordable.
-
-Are you open to trying it out at no cost?
-
-Will
-UpLead
-
-**WHY IT WORKS:**
-1. Simple opening - no fake flattery
-2. Clear comparison - "like ZoomInfo but..." (instant understanding)
-3. Specific differentiator - "real-time email verification" + "affordable"
-4. Zero-risk ask - "at no cost"
-5. 35 words - respects their time
-
----
-
-**YOUR USP:**
-You build an automation system that:
-1. Finds and generates leads for them
-2. Reaches out to those leads automatically
-3. They can try it at zero cost
-
-This is like having Apollo + Outreach.io combined, running on autopilot.
-
----
-
-**WRITE THIS EMAIL:**
+**WRITE THIS EXACT EMAIL STRUCTURE:**
 
 Subject: Hi ${data.recipientName}
 
-[OPENING - one of these:]
-- "Quick one for you."
-- "Thought this might help."
-- "Random reach out, but hear me out."
+[OPENING - The "Pattern Interrupt"]
+Start by calling out the current messy state of sales tech.
+Examples:
+- "Quick question - are you currently stitching together Apollo and Outreach?"
+- "Curious how you're handling outbound right now - manual or automated?"
+- "Quick one - building something that might kill your Apollo bill."
 
-[PITCH - be SPECIFIC about value:]
-The pitch must clearly say WHAT it does. Not vague "automation" - specific value.
+[THE PITCH - "The Better Way"]
+Explain you built a unified system.
+Structure: "We built a system that [does X and Y] automatically, so you don't have to [pain point]."
+Example: "We built an autopilot for sales that finds the leads AND sends the emails - basically replacing the Apollo + Outreach stack for $0 upfront."
 
-GOOD: "We built a system that finds leads and reaches out to them for you - like having Apollo and Outreach.io running together, hands-free."
+[THE ASK - Low Friction]
+- "Mind if I send a quick video?"
+- "Open to testing it out?"
+- "Worth a peek?"
 
-BAD: "We build automation that helps with outreach" (too vague)
-
-[ASK - zero risk:]
-"Want to try it at zero cost?"
-
-[SIGNATURE:]
+[SIGNATURE]
 ${data.senderName}
 ${data.senderCompany}
 
 ---
 
-**EXACT OUTPUT EXAMPLE:**
-
-Subject: Hi Rajendra
-
-Quick one for you.<br><br>We built a system that finds leads and reaches out to them automatically - like Apollo + Outreach.io combined, but you don't touch a thing.<br><br>Want to try it at zero cost?<br><br>Hariom<br>Autonerve
-
----
-
-**CONTEXT:**
-- From: ${data.senderName} at ${data.senderCompany}
-- To: ${data.recipientName} at ${data.companyName}
-- Industry: ${data.industry}
-${data.keyPainPoint ? `- Note: ${data.keyPainPoint}` : ''}
-
----
-
 **STRICT RULES:**
-1. Subject = "Hi ${data.recipientName}" only
-2. NO name in body
-3. Pitch MUST mention "finds leads" AND "reaches out" - both parts of the value
-4. MUST compare to Apollo, Outreach.io, or Salesloft
-5. ASK must include "zero cost" or "no cost"
-6. Under 40 words in body
-7. Use <br><br> between sentences
+- Tone: Casual, direct, peer-to-peer (no "Dear", no "Best regards")
+- Length: Under 50 words.
+- NO "I hope this finds you well".
+- NO "I was checking out your LinkedIn".
+- MUST mention replacing/combining Apollo/Outreach.
+- MUST highlight the "Automated / Hands-free" aspect.
 
----
-
-**BANNED (instant delete triggers):**
-- "I was checking out your LinkedIn" (overused)
-- "I hope this finds you well"
-- "We build automations that..."
-- "AI-powered" / "AI sales automation"
-- Any sentence over 20 words
-
----
-
-**OUTPUT (JSON):**
+**OUTPUT JSON:**
 {
   "subjectLine": "Hi ${data.recipientName}",
-  "emailBody": "[Short opening]<br><br>[Specific pitch: finds leads + reaches out + comparison]<br><br>[Zero cost ask]<br><br>${data.senderName}<br>${data.senderCompany}",
-  "strategyExplanation": "Why this specific email will get a reply"
+  "emailBody": "[Opening question]<br><br>[The Pitch: Apollo+Outreach replacement]<br><br>[The Ask]<br><br>${data.senderName}<br>${data.senderCompany}",
+  "strategyExplanation": "Why this specific angle works"
 }
 `;
 
