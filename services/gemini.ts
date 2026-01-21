@@ -8,62 +8,72 @@ export const generateSalesEmail = async (data: FormData): Promise<EmailResponse>
   const modelId = "gemini-2.5-flash";
 
   const prompt = `
-Write a cold email from a founder to a founder.
+You are a top 0.1% cold email copywriter. Your goal: 35%+ reply rate.
 
-**THE OUTCOME WE WANT:** 
-A reply saying "Sure, send me a demo" or "I'm open to seeing it".
+**THE STRATEGY: "THE FOUNDER BETA"**
+Most "free" offers sound like scams. To get replies, you must justify WHY it's free.
+The best reason? "We're new and want case studies/feedback."
 
-**THE PROBLEM WITH MOST EMAILS:**
-They sound like sales pitches ("We help you do X").
-They are generic ("I saw your LinkedIn").
-They focus on features ("We have AI").
-
-**THE WINNING ANGLE (THE "FOUNDER FRAME"):**
-You are a builder who solved a problem. You are sharing it with a peer.
-- **Identify the pain:** Paying for Apollo + Outreach + heavily manual work.
-- **The solution:** A single tool that does both, automatically.
-- **The specific benefit:** "You don't touch a thing" / "Runs on autopilot".
-
-**WRITE THIS EXACT EMAIL STRUCTURE:**
-
-Subject: Hi ${data.recipientName}
-
-[OPENING - The "Pattern Interrupt"]
-Start by calling out the current messy state of sales tech.
-Examples:
-- "Quick question - are you currently stitching together Apollo and Outreach?"
-- "Curious how you're handling outbound right now - manual or automated?"
-- "Quick one - building something that might kill your Apollo bill."
-
-[THE PITCH - "The Better Way"]
-Explain you built a unified system.
-Structure: "We built a system that [does X and Y] automatically, so you don't have to [pain point]."
-Example: "We built an autopilot for sales that finds the leads AND sends the emails - basically replacing the Apollo + Outreach stack for $0 upfront."
-
-[THE ASK - Low Friction]
-- "Mind if I send a quick video?"
-- "Open to testing it out?"
-- "Worth a peek?"
-
-[SIGNATURE]
-${data.senderName}
-${data.senderCompany}
+This frame builds:
+1.  **Credibility:** You're a builder, not a salesperson.
+2.  **Scarcity:** "Beta" implies limited spots.
+3.  **Reciprocity:** You give value (free tool), they give value (feedback/case study).
 
 ---
 
-**STRICT RULES:**
-- Tone: Casual, direct, peer-to-peer (no "Dear", no "Best regards")
-- Length: Under 50 words.
-- NO "I hope this finds you well".
-- NO "I was checking out your LinkedIn".
-- MUST mention replacing/combining Apollo/Outreach.
-- MUST highlight the "Automated / Hands-free" aspect.
+**THE EMAIL STRUCTURE (Follow EXACTLY):**
 
-**OUTPUT JSON:**
+**Subject:**
+- "question"
+- "outreach"
+- "leads"
+- "${data.companyName} + ${data.senderCompany}"
+*(Keep it lowercase or simple. No "Great Offer!" styles)*
+
+**Sentence 1: The Context (Why you're here)**
+"I'm building a new tool for [Industry] teams that combines Apollo and Outreach into one automated platform."
+
+**Sentence 2: The Value (The 'Better Way')**
+"It handles lead sourcing and sending automatically, so you don't have to glue tools together."
+*OR*
+"It generates leads and runs outreach on autopilot, replacing your current manual stack."
+
+**Sentence 3: The Ask (The 'Credible Free Offer')**
+"I'm looking for early users to test it out (at $0 cost) in exchange for some feedback. Open to it?"
+
+---
+
+**STRICT RULES FOR TOP 1% RESULTS:**
+1.  **NO "I hope you're well"**. Instant delete.
+2.  **NO "I was checking out your LinkedIn"**. Everyone says this.
+3.  **Under 50 words**. Respect their time.
+4.  **Tone:** Peer-to-peer. Founder-to-Founder. Casual but professional.
+5.  **The Deal:** Must be clear it's FREE in exchange for FEEDBACK/TESTING. This is the hook.
+
+---
+
+**CONTEXT:**
+- Sender: ${data.senderName} (${data.senderCompany})
+- Recipient: ${data.recipientName} (${data.companyName})
+- Industry: ${data.industry}
+
+---
+
+**EXAMPLE OUTPUT (What 'Perfect' looks like):**
+
+Subject: leads
+
+Hi Rajendra,
+
+I'm building a consolidated sales platform that combines lead sourcing and outreach - essentially Apollo + Outreach in one.<br><br>We're looking for a few early users to run it for free in exchange for feedback.<br><br>Would you be open to testing it out?<br><br>Hariom<br>Autonerve
+
+---
+
+**OUTPUT (JSON):**
 {
-  "subjectLine": "Hi ${data.recipientName}",
-  "emailBody": "[Opening question]<br><br>[The Pitch: Apollo+Outreach replacement]<br><br>[The Ask]<br><br>${data.senderName}<br>${data.senderCompany}",
-  "strategyExplanation": "Why this specific angle works"
+  "subjectLine": "question" OR "leads" OR "outreach",
+  "emailBody": "[Context]<br><br>[Value Prop]<br><br>[The Ask]<br><br>${data.senderName}<br>${data.senderCompany}",
+  "strategyExplanation": "Why this specific email will get a reply"
 }
 `;
 
