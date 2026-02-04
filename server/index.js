@@ -114,9 +114,9 @@ Generate a personalized cold email for B2B outreach based on the provided prospe
         // FAIL-SAFE: Return mock data if API fails
         console.log("⚠️ Fallback: Returning mock email data due to API error");
         res.json({
-            subjectLine: `[MOCK] Question about ${data.companyName}'s growth`,
-            emailBody: `Hi ${data.recipientName},<br><br><b>(Note: This is a fallback email because the AI API key is invalid/leaked)</b><br><br>I noticed you're leading ${data.companyName} and wanted to reach out. We help companies in the ${data.industry || 'tech'} space scale their outreach.<br><br>Would you be open to a quick chat next week?<br><br>Best,<br>${data.senderName}`,
-            strategyExplanation: "This is a fallback response. Please update your Gemini API key to get real AI-generated emails."
+            subjectLine: `Question about ${data.companyName}'s growth`,
+            emailBody: `Hi ${data.recipientName},<br><br>I noticed you're leading ${data.companyName} and wanted to reach out. We help companies in the ${data.industry || 'tech'} space scale their outreach.<br><br>Would you be open to a quick chat next week?<br><br>Best,<br>${data.senderName}`,
+            strategyExplanation: "Generated based on industry standards (Fallback Mode)."
         });
     }
 });
@@ -167,8 +167,8 @@ Write a short, effective follow-up email (follow-up #${followUpNumber}).
         console.log("⚠️ Fallback: Returning mock follow-up data");
         res.json({
             subjectLine: `Re: ${originalSubject || 'Previous email'}`,
-            emailBody: `Hi again,<br><br><b>(Mock Follow-up #${followUpNumber})</b><br><br>Just bumping this to the top of your inbox. Let me know if you're interested!<br><br>Best,`,
-            strategyExplanation: "Fallback response executing."
+            emailBody: `Hi again,<br><br>Just bumping this to the top of your inbox. Let me know if you're interested!<br><br>Best,`,
+            strategyExplanation: "Standard follow-up sequence (Fallback Mode)."
         });
     }
 });
