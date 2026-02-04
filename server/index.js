@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
@@ -682,6 +683,11 @@ app.get('/lead/:id', async (req, res) => {
 });
 
 console.log('🔄 Server starting up...');
+console.log(`🔑 Loaded Configuration:`);
+console.log(`   - PORT: ${PORT}`);
+console.log(`   - Client ID: ${process.env.GOOGLE_CLIENT_ID ? process.env.GOOGLE_CLIENT_ID.substring(0, 15) + '...' : 'MISSING'}`);
+console.log(`   - Client Secret: ${process.env.GOOGLE_CLIENT_SECRET ? 'Present (Starts with ' + process.env.GOOGLE_CLIENT_SECRET.substring(0, 5) + '...)' : 'MISSING'}`);
+
 
 app.listen(PORT, () => {
     console.log(`📡 Tracking Server running on http://localhost:${PORT}`);

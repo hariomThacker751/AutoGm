@@ -4,17 +4,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AutoPersuade AI - Sales Email Generator</title>
+  <title>AutoPersuade AI - Enterprise Sales Automation</title>
+  <meta name="description"
+    content="Turn cold leads into closed deals on autopilot with AI-powered email outreach and intelligent follow-up sequences.">
+
+  <!-- Google Fonts - Inter for Premium Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind CSS CDN with Dark Mode Config -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
           fontFamily: {
             sans: ['Inter', 'sans-serif'],
           },
           colors: {
+            // Deep dark backgrounds
+            deep: '#0a0f1a',
+            surface: '#111827',
+            elevated: '#1f2937',
+
+            // Premium accent colors
             primary: {
               50: '#eef2ff',
               100: '#e0e7ff',
@@ -27,21 +43,71 @@
               800: '#3730a3',
               900: '#312e81',
               950: '#1e1b4b',
+            },
+            neon: {
+              purple: '#8b5cf6',
+              blue: '#3b82f6',
+              cyan: '#06b6d4',
+              green: '#10b981',
+              pink: '#ec4899',
             }
           },
           boxShadow: {
-            'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
-            'glow': '0 0 15px -3px rgba(99, 102, 241, 0.1)',
+            'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
+            'glow': '0 0 20px rgba(99, 102, 241, 0.4), 0 0 40px rgba(99, 102, 241, 0.2)',
+            'glow-success': '0 0 20px rgba(16, 185, 129, 0.3)',
+            'elevated': '0 10px 40px -10px rgba(0, 0, 0, 0.5)',
+            'card': '0 8px 32px rgba(0, 0, 0, 0.3)',
+          },
+          backdropBlur: {
+            xs: '2px',
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-out forwards',
+            'fade-up': 'fadeInUp 0.5s ease-out forwards',
+            'slide-in': 'slideInRight 0.4s ease-out forwards',
+            'glow-pulse': 'glowPulse 2s ease-in-out infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+            fadeInUp: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            slideInRight: {
+              '0%': { opacity: '0', transform: 'translateX(20px)' },
+              '100%': { opacity: '1', transform: 'translateX(0)' },
+            },
+            glowPulse: {
+              '0%, 100%': { boxShadow: '0 0 20px rgba(99, 102, 241, 0.4)' },
+              '50%': { boxShadow: '0 0 40px rgba(99, 102, 241, 0.6), 0 0 60px rgba(99, 102, 241, 0.4)' },
+            }
           }
         }
       }
     }
   </script>
 
+  <!-- Custom Styles -->
   <link rel="stylesheet" href="/index.css">
+
+  <style>
+    /* Critical inline styles for immediate dark mode */
+    html,
+    body {
+      background: #0a0f1a;
+      color: #f9fafb;
+    }
+  </style>
 </head>
 
-<body class="bg-slate-50 text-slate-900 antialiased">
+<body class="dark bg-deep text-white antialiased min-h-screen">
+  <!-- Animated Background Gradient -->
+  <div class="app-background"></div>
+
   <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>

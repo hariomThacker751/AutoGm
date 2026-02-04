@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Campaign, PendingFollowUp, ImportedLead } from '../types';
-import { Folder, Plus, X } from 'lucide-react';
+import { Folder, Plus, X, Zap, ArrowLeft, Sparkles, LayoutDashboard } from 'lucide-react';
 import { toast } from 'sonner';
 import CampaignList from './CampaignList';
 import CampaignDetails from './CampaignDetails';
@@ -42,15 +42,19 @@ const CampaignManager: React.FC<CampaignManagerProps> = ({
         try {
             const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/campaigns`);
             const data = await res.json();
-            setCampaigns(data);
+
+            // Ensure data is an array before setting
+            const campaignsArray = Array.isArray(data) ? data : [];
+            setCampaigns(campaignsArray);
 
             // Re-select current campaign with fresh data
             if (selectedCampaign) {
-                const updated = data.find((c: Campaign) => c.id === selectedCampaign.id);
+                const updated = campaignsArray.find((c: Campaign) => c.id === selectedCampaign.id);
                 if (updated) setSelectedCampaign(updated);
             }
         } catch (err) {
             console.error('Failed to fetch campaigns:', err);
+            setCampaigns([]); // Set empty array on error
         } finally {
             setLoading(false);
         }
@@ -124,46 +128,56 @@ const CampaignManager: React.FC<CampaignManagerProps> = ({
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-                <div className="animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full" />
+            <div className="min-h-screen flex items-center justify-center relative">
+                <div className="absolute inset-0 bg-deep">
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(99,102,241,0.15),transparent)]" />
+                </div>
+                <div className="animate-spin w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full relative z-10" />
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen relative">
+            {/* Background */}
+            <div className="absolute inset-0 bg-deep">
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(99,102,241,0.15),transparent)]" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_100%_100%,rgba(139,92,246,0.08),transparent)]" />
+            </div>
+
             {/* Header */}
-            <header className="sticky top-0 z-20 border-b border-slate-200/50 bg-white/80 backdrop-blur-xl">
+            <header className="sticky top-0 z-20 border-b border-white/5 bg-surface/80 backdrop-blur-xl">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="bg-gradient-to-br from-purple-600 to-indigo-600 p-2.5 rounded-xl text-white shadow-lg shadow-purple-500/20">
-                            <Folder className="w-5 h-5" />
+                        <div className="bg-gradient-to-br from-neon-purple to-primary-500 p-2.5 rounded-xl shadow-glow">
+                            <Folder className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-xl font-bold text-slate-800">Campaign Manager</h1>
-                            <p className="text-xs text-slate-500">Create, manage, and track your email campaigns</p>
+                            <h1 className="text-xl font-bold text-white">Campaign Manager</h1>
+                            <p className="text-xs text-gray-500">Create, manage, and track your email campaigns</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => setShowCreateModal(true)}
-                            className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-lg shadow-indigo-500/20"
+                            className="btn btn-primary"
                         >
                             <Plus className="w-4 h-4" />
                             New Campaign
                         </button>
                         <button
                             onClick={onBack}
-                            className="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors"
+                            className="btn btn-ghost text-sm"
                         >
-                            ← Back
+                            <ArrowLeft className="w-4 h-4" />
+                            Back
                         </button>
                     </div>
                 </div>
             </header>
 
             {/* Main Content */}
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <main className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Campaign List Sidebar */}
                     <div className="lg:col-span-4 xl:col-span-3">
@@ -187,19 +201,19 @@ const CampaignManager: React.FC<CampaignManagerProps> = ({
                                 onRefresh={fetchCampaigns}
                             />
                         ) : (
-                            <div className="bg-white rounded-2xl p-16 text-center border border-slate-100 shadow-sm">
-                                <div className="w-20 h-20 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                                    <Folder className="w-10 h-10 text-indigo-300" />
+                            <div className="glass-card p-16 text-center animate-fade-up">
+                                <div className="w-20 h-20 bg-gradient-to-br from-primary-500/20 to-neon-purple/20 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                                    <Folder className="w-10 h-10 text-primary-400" />
                                 </div>
-                                <h2 className="text-xl font-bold text-slate-700 mb-2">Select a Campaign</h2>
-                                <p className="text-slate-400 max-w-sm mx-auto">
+                                <h2 className="text-xl font-bold text-white mb-2">Select a Campaign</h2>
+                                <p className="text-gray-400 max-w-sm mx-auto">
                                     Choose a campaign from the list to view details, upload leads, and track performance.
                                 </p>
                                 <button
                                     onClick={() => setShowCreateModal(true)}
-                                    className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-colors shadow-lg shadow-indigo-500/20"
+                                    className="btn btn-primary mt-6"
                                 >
-                                    <Plus className="w-4 h-4" />
+                                    <Sparkles className="w-4 h-4" />
                                     Create First Campaign
                                 </button>
                             </div>
@@ -210,83 +224,83 @@ const CampaignManager: React.FC<CampaignManagerProps> = ({
 
             {/* Create Campaign Modal */}
             {showCreateModal && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200">
+                <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="glass-card-elevated p-6 w-full max-w-md animate-fade-up">
                         <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-xl font-bold text-slate-800">Create Campaign</h2>
+                            <h2 className="text-xl font-bold text-white">Create Campaign</h2>
                             <button
                                 onClick={() => setShowCreateModal(false)}
-                                className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                                className="btn btn-icon btn-ghost"
                             >
-                                <X className="w-5 h-5 text-slate-400" />
+                                <X className="w-5 h-5 text-gray-400" />
                             </button>
                         </div>
 
                         <div className="space-y-5">
                             {/* Campaign Name */}
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                                    Campaign Name <span className="text-red-500">*</span>
+                                <label className="input-label">
+                                    Campaign Name <span className="text-red-400">*</span>
                                 </label>
                                 <input
                                     type="text"
                                     value={newCampaignName}
                                     onChange={(e) => setNewCampaignName(e.target.value)}
                                     placeholder="e.g., Q1 Outreach"
-                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                                    className="input-field"
                                 />
                             </div>
 
                             {/* Sender Info */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                                        Your Name <span className="text-red-500">*</span>
+                                    <label className="input-label">
+                                        Your Name <span className="text-red-400">*</span>
                                     </label>
                                     <input
                                         type="text"
                                         value={senderName}
                                         onChange={(e) => setSenderName(e.target.value)}
                                         placeholder="John Smith"
-                                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500"
+                                        className="input-field"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                                        Company <span className="text-red-500">*</span>
+                                    <label className="input-label">
+                                        Company <span className="text-red-400">*</span>
                                     </label>
                                     <input
                                         type="text"
                                         value={senderCompany}
                                         onChange={(e) => setSenderCompany(e.target.value)}
                                         placeholder="Acme Inc"
-                                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500"
+                                        className="input-field"
                                     />
                                 </div>
                             </div>
 
                             {/* Follow-up Schedule */}
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                <label className="input-label mb-2">
                                     Follow-up Schedule
                                 </label>
-                                <p className="text-xs text-slate-400 mb-3">Days after initial email to send follow-ups</p>
+                                <p className="text-xs text-gray-500 mb-3">Days after initial email to send follow-ups</p>
                                 <div className="space-y-2">
                                     {followUpDays.map((day, idx) => (
                                         <div key={idx} className="flex items-center gap-3">
-                                            <span className="text-sm text-slate-500 w-24">Follow-up {idx + 1}</span>
+                                            <span className="text-sm text-gray-400 w-24">Follow-up {idx + 1}</span>
                                             <input
                                                 type="number"
                                                 min="1"
                                                 value={day}
                                                 onChange={(e) => updateFollowUpDay(idx, parseInt(e.target.value) || 1)}
-                                                className="w-20 px-3 py-2 border border-slate-200 rounded-lg text-center focus:ring-2 focus:ring-indigo-500"
+                                                className="input-field w-20 text-center py-2"
                                             />
-                                            <span className="text-sm text-slate-400">days</span>
+                                            <span className="text-sm text-gray-500">days</span>
                                             {followUpDays.length > 1 && (
                                                 <button
                                                     onClick={() => removeFollowUpDay(idx)}
-                                                    className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                    className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
                                                 >
                                                     <X className="w-4 h-4" />
                                                 </button>
@@ -296,7 +310,7 @@ const CampaignManager: React.FC<CampaignManagerProps> = ({
                                 </div>
                                 <button
                                     onClick={addFollowUpDay}
-                                    className="mt-3 text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+                                    className="mt-3 text-sm text-primary-400 hover:text-primary-300 font-medium"
                                 >
                                     + Add follow-up
                                 </button>
@@ -307,15 +321,16 @@ const CampaignManager: React.FC<CampaignManagerProps> = ({
                         <div className="flex gap-3 mt-8">
                             <button
                                 onClick={() => setShowCreateModal(false)}
-                                className="flex-1 py-3 border border-slate-200 text-slate-600 font-semibold rounded-xl hover:bg-slate-50 transition-colors"
+                                className="btn btn-ghost flex-1"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={createCampaign}
                                 disabled={!newCampaignName.trim() || !senderName.trim() || !senderCompany.trim()}
-                                className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-semibold rounded-xl transition-colors shadow-lg shadow-indigo-500/20"
+                                className="btn btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
+                                <Zap className="w-4 h-4" />
                                 Create Campaign
                             </button>
                         </div>

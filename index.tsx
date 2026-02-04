@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+// import App from './AppTest';
+import './index.css';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: Error | null }> {
@@ -37,11 +39,14 @@ if (!rootElement) {
   throw new Error("Could not find root element to mount to");
 }
 
+const clientId = "67763761027-dmeoa8p75gb42sago6ek8en3gfkd1tje.apps.googleusercontent.com";
+console.log("🔵 Initializing Google Login with Client ID:", clientId);
+
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
     <ErrorBoundary>
-      <GoogleOAuthProvider clientId="515297334084-dak80kuoa6fenuod3lql7p9ak5qe54m8.apps.googleusercontent.com">
+      <GoogleOAuthProvider clientId="67763761027-dmeoa8p75gb42sago6ek8en3gfkd1tje.apps.googleusercontent.com">
         <App />
       </GoogleOAuthProvider>
     </ErrorBoundary>

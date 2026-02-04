@@ -2,7 +2,19 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { FormData, EmailResponse } from "../types";
 
 // Initialize Gemini client using the environment variable API key
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY });
+// Initialize Gemini client lazily to prevent top-level crashes
+let aiClient: GoogleGenAI | null = null;
+
+const getAIClient = () => {
+  if (!aiClient) {
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
+    if (!apiKey) {
+      console.warn("Gemini API Key is missing! Check .env.local");
+    }
+    aiClient = new GoogleGenAI({ apiKey: apiKey || "dummy_key_to_prevent_crash" });
+  }
+  return aiClient;
+};
 
 export const generateSalesEmail = async (data: FormData): Promise<EmailResponse> => {
   const modelId = "gemini-2.5-flash";
@@ -100,7 +112,7 @@ Autonerve
 
 
   try {
-    const response = await ai.models.generateContent({
+    const response = await getAIClient().models.generateContent({
       model: modelId,
       contents: prompt,
       config: {
@@ -181,7 +193,7 @@ Write a SUPER SHORT follow-up email (follow-up #${followUpNumber}).
 `;
 
   try {
-    const response = await ai.models.generateContent({
+    const response = await getAIClient().models.generateContent({
       model: modelId,
       contents: prompt,
       config: {
