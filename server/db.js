@@ -5,7 +5,7 @@ const supabaseKey = process.env.SUPABASE_SERVICE_KEY || '';
 
 let supabase;
 
-if (!supabaseUrl || !supabaseKey) {
+if (!supabaseUrl || !supabaseKey || !supabaseUrl.startsWith('http')) {
     console.warn('[WARNING] Supabase credentials not found. Database operations will fail.');
     // Create a dummy client that warns when used
     supabase = {
