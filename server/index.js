@@ -12,8 +12,7 @@ const PORT = process.env.PORT || 3001;
 // Initialize Gemini Client (Stable SDK)
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash",
-    generationConfig: { responseMimeType: "application/json" }
+    model: "gemini-2.5-flash"
 });
 
 app.use(cors());
@@ -101,9 +100,11 @@ Generate a personalized cold email for B2B outreach based on the provided prospe
 
         const result = await model.generateContent(prompt);
         const response = await result.response;
-        const text = response.text();
+        let text = response.text();
 
         if (text) {
+            // Strip markdown code blocks if present (e.g., ```json ... ```)
+            text = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
             res.json(JSON.parse(text));
         } else {
             throw new Error("Empty response from AI");
@@ -153,9 +154,11 @@ Write a short, effective follow-up email (follow-up #${followUpNumber}).
 
         const result = await model.generateContent(prompt);
         const response = await result.response;
-        const text = response.text();
+        let text = response.text();
 
         if (text) {
+            // Strip markdown code blocks if present
+            text = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
             res.json(JSON.parse(text));
         } else {
             throw new Error("Empty response from AI");
