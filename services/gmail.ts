@@ -51,15 +51,18 @@ export const sendGmail = async (accessToken: string, rawMessage: string) => {
         const errorData = await response.json().catch(() => ({ error: { message: 'Unknown error' } }));
         const errorMessage = errorData?.error?.message || 'Failed to send email';
 
-        // Check for common errors
+        // Check for common errors with actionable messages
         if (response.status === 401) {
-            throw new Error('Token expired. Please sign out and sign back in with Google.');
+            throw new Error('Session expired. Please sign out and sign back in.');
         }
         if (response.status === 403) {
-            throw new Error('Permission denied. Make sure you granted Gmail send permission.');
+            throw new Error('Gmail permission denied. Please sign out, then sign back in and ALLOW all permissions (including "Send email on your behalf").');
+        }
+        if (response.status === 400 && errorMessage.includes('invalid')) {
+            throw new Error('Invalid email format. Check recipient email address.');
         }
 
-        throw new Error(errorMessage);
+        throw new Error(`Gmail API Error: ${errorMessage}`);
     }
 
     return response.json();

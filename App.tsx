@@ -72,9 +72,25 @@ const App: React.FC = () => {
 
   const login = useGoogleLogin({
     flow: 'implicit',  // Simplified flow - directly gets access token
+    prompt: 'consent', // IMPORTANT: Force consent screen to ensure all permissions are granted
     onSuccess: async (tokenResponse) => {
       console.log('✅ Google access token received:', tokenResponse);
+      console.log('📋 Granted scopes:', tokenResponse.scope);
       const toastId = toast.loading('Getting user info...');
+
+      // Verify Gmail send scope was granted
+      const grantedScopes = tokenResponse.scope?.split(' ') || [];
+      const hasGmailScope = grantedScopes.some(s => s.includes('gmail.send'));
+
+      if (!hasGmailScope) {
+        toast.dismiss(toastId);
+        toast.error('Gmail permission not granted!', {
+          description: 'Please sign in again and allow "Send email on your behalf"',
+          duration: 8000
+        });
+        console.error('❌ Gmail send scope not in granted scopes:', grantedScopes);
+        return;
+      }
 
       try {
         // Get user info directly using the access token
@@ -91,8 +107,8 @@ const App: React.FC = () => {
         });
         setAutoSendEnabled(false); // No refresh token with implicit flow
         toast.dismiss(toastId);
-        toast.success('Signed in successfully!', {
-          description: `Welcome, ${userInfo.name}!`,
+        toast.success('Signed in with Gmail access!', {
+          description: `Welcome, ${userInfo.name}! Email sending enabled.`,
           duration: 3000
         });
       } catch (error: any) {
