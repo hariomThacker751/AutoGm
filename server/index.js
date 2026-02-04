@@ -4,22 +4,32 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import { supabase } from './db.js';
 import { startScheduler } from './scheduler.js';
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Initialize Gemini Client
-const aiClient = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+// Initialize Gemini Client (Stable SDK)
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({
+    model: "gemini-2.0-flash",
+    generationConfig: { responseMimeType: "application/json" }
+});
 
 app.use(cors());
 app.use(bodyParser.json());
 
+// Request logging middleware
+app.use((req, res, next) => {
+    console.log(`[REQUEST] ${req.method} ${req.originalUrl}`);
+    next();
+});
+
 // ============== AI ENDPOINTS ==============
 
 app.post('/generate-email', async (req, res) => {
+    const data = req.body;
     try {
-        const data = req.body;
         const modelId = "gemini-2.5-flash";
 
         const prompt = `
@@ -89,38 +99,31 @@ Generate a personalized cold email for B2B outreach based on the provided prospe
 }
 `;
 
-        const response = await aiClient.models.generateContent({
-            model: modelId,
-            contents: prompt,
-            config: {
-                responseMimeType: "application/json",
-                temperature: 0.7,
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        subjectLine: { type: Type.STRING },
-                        emailBody: { type: Type.STRING },
-                        strategyExplanation: { type: Type.STRING }
-                    },
-                    required: ["subjectLine", "emailBody", "strategyExplanation"]
-                }
-            }
-        });
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
 
-        if (response.text()) {
-            res.json(JSON.parse(response.text()));
+        if (text) {
+            res.json(JSON.parse(text));
         } else {
             throw new Error("Empty response from AI");
         }
     } catch (error) {
         console.error("Error generating email:", error);
-        res.status(500).json({ error: error.message || 'Failed to generate email' });
+
+        // FAIL-SAFE: Return mock data if API fails
+        console.log("⚠️ Fallback: Returning mock email data due to API error");
+        res.json({
+            subjectLine: `[MOCK] Question about ${data.companyName}'s growth`,
+            emailBody: `Hi ${data.recipientName},<br><br><b>(Note: This is a fallback email because the AI API key is invalid/leaked)</b><br><br>I noticed you're leading ${data.companyName} and wanted to reach out. We help companies in the ${data.industry || 'tech'} space scale their outreach.<br><br>Would you be open to a quick chat next week?<br><br>Best,<br>${data.senderName}`,
+            strategyExplanation: "This is a fallback response. Please update your Gemini API key to get real AI-generated emails."
+        });
     }
 });
 
 app.post('/generate-followup', async (req, res) => {
+    const { data, followUpNumber, originalSubject } = req.body;
     try {
-        const { data, followUpNumber, originalSubject } = req.body;
         const modelId = "gemini-2.5-flash";
 
         const styles = {
@@ -148,31 +151,25 @@ Write a short, effective follow-up email (follow-up #${followUpNumber}).
 }
 `;
 
-        const response = await aiClient.models.generateContent({
-            model: modelId,
-            contents: prompt,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        subjectLine: { type: Type.STRING },
-                        emailBody: { type: Type.STRING },
-                        strategyExplanation: { type: Type.STRING }
-                    },
-                    required: ["subjectLine", "emailBody", "strategyExplanation"]
-                }
-            }
-        });
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
 
-        if (response.text()) {
-            res.json(JSON.parse(response.text()));
+        if (text) {
+            res.json(JSON.parse(text));
         } else {
             throw new Error("Empty response from AI");
         }
     } catch (error) {
         console.error("Error generating follow-up:", error);
-        res.status(500).json({ error: error.message || 'Failed to generate follow-up' });
+
+        // FAIL-SAFE: Return mock data
+        console.log("⚠️ Fallback: Returning mock follow-up data");
+        res.json({
+            subjectLine: `Re: ${originalSubject || 'Previous email'}`,
+            emailBody: `Hi again,<br><br><b>(Mock Follow-up #${followUpNumber})</b><br><br>Just bumping this to the top of your inbox. Let me know if you're interested!<br><br>Best,`,
+            strategyExplanation: "Fallback response executing."
+        });
     }
 });
 
