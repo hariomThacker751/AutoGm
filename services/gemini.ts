@@ -20,43 +20,68 @@ export const generateSalesEmail = async (data: FormData): Promise<EmailResponse>
   const modelId = "gemini-2.5-flash";
 
   const prompt = `
-You are the world's most advanced Cold Email Architect.
-**MISSION:** Construct an email that gets opened and replied to.
-**GOAL:** Highest possible Open Rate and Reply Rate.
+# ROLE & EXPERTISE
+You are a B2B cold email expert with 15+ years of experience writing high-converting outreach emails for lead generation agencies. You specialize in personalized, research-driven emails that achieve 15-25% reply rates.
 
-**INPUT DATA:**
-- Recipient: ${data.recipientName}
-- Company: ${data.companyName}
-- Industry: ${data.industry}
-- Pain Point: ${data.keyPainPoint || "Manual lead generation"}
-- Sender: ${data.senderName} (${data.senderCompany})
+# TASK
+Generate a personalized cold email for B2B outreach based on the provided prospect data and context.
 
----
+# CONTEXT & DATA INPUTS
+- Prospect Name: ${data.recipientName}
+- Company Name: ${data.companyName}
+- Industry/Vertical: ${data.industry}
+- Key Pain Point: ${data.keyPainPoint || "Manual lead generation"}
+- Sender's Company Name: ${data.senderName} (${data.senderCompany})
+- Business Model: Infer from industry (e.g., SaaS, E-commerce, Agency)
 
-### STRATEGY: ULTRA-PERSONALIZATION & IRRESISTIBLE OFFER
+# CONSTRAINTS & REQUIREMENTS
 
-**1. THE SUBJECT LINE:**
-   - **GOAL:** Maximize open rate through pure relevance and curiosity.
-   - **STRATEGY:** Analyze the input data. Write a subject line that proves you know exactly who they are and what they care about.
-   - **AVOID:** Generic marketing phrases ("Solution for...", "Partnership").
-   - **FOCUS:** A specific observation, a relevant question, or a direct value proposition.
+## MUST-HAVE Elements:
+1. **Local Connection Hook (Priority #1)**: If sender and prospect are in the same city/region, ALWAYS lead with this ("Fellow [City] founder...", "Another [City]-based entrepreneur here...")
+2. **Business Model Vocabulary Precision**: 
+   - B2B/SaaS companies → use "leads", "pipeline", "qualified prospects"
+   - D2C/E-commerce → use "customers", "conversions", "sales"
+   - Fashion/Retail → use "retail partners", "distributors", "influencers", "brand collaborations"
+3. **Specificity Over Generic**: Reference their EXACT business model, not just industry
+4. **Problem-First, Not Feature-First**: Lead with the pain point we solve, not our tool's capabilities
+5. **Confident Tone**: Replace uncertain phrases ("I can only imagine...") with assertive statements ("Scaling X manually typically diverts...")
+6. **Clear CTA**: Always end with ONE specific, low-commitment action (10-min call, demo link, pilot offer)
 
-**2. THE EMAIL BODY:**
-   - **HOOK:** Open with a specific observation about their company or industry to prove you did your research.
-   - **PROBLEM:** Briefly touch on the pain point (${data.keyPainPoint}) in a way that resonates with a founder/decision-maker.
-   - **IRRESISTIBLE OFFER:** "I have built an AI that automates this. I want to let you use it for **FREE** to prove it works."
-     - *Key Psychology:* Remove all risk. It's not a sales pitch, it's a "free trial to prove value."
-   - **CALL TO ACTION:** Low friction. "Open to a quick look?" or "Worth a chat?"
+## FORBIDDEN Elements:
+- Generic flattery ("I've been impressed by...")
+- Vague value props ("help you grow", "increase efficiency")
+- Multiple CTAs in one email
+- Wall-of-text paragraphs (max 2-3 lines per paragraph)
+- Overuse of bold/italics (max 1-2 instances)
+- Salesy language ("game-changer", "revolutionary", "cutting-edge")
 
-**TONE:** Professional, confident, concise. Like a busy founder emailing another busy founder.
+# OUTPUT FORMAT
 
----
+## Subject Line Requirements:
+- Max 8 words
+- Include prospect's first name OR company name
+- Format: "[Name/Company], [Benefit/Question]"
+- Examples: "Rajendra, automate Fashion Dream's retail outreach?", "Ompax, AI for wholesale partner discovery"
+
+## Email Body Structure:
+1. **Opening (1-2 sentences)**: Local connection (if applicable) + specific observation about their business
+2. **Problem Statement (1-2 sentences)**: The exact bottleneck they face (based on business model)
+3. **Solution (2 sentences)**: What our AI does + who/what it finds (be SPECIFIC)
+4. **Proof/Credibility (1 sentence)**: Social proof, result, or risk-reversal ("I'll let you run a campaign for **free** to prove it works.")
+5. **CTA (1 sentence)**: Single, clear ask with low commitment
+
+## Tone Guidelines:
+- Conversational but professional
+- Founder-to-founder (peer-level, not vendor-to-buyer)
+- Confident without arrogance
+- Helpful without being pushy
+- 150-180 words max
 
 **GENERATE JSON OUTPUT:**
 {
-  "subjectLine": "The highly personalized subject line",
+  "subjectLine": "The personalized subject line",
   "emailBody": "The HTML body with <br><br> for breaks",
-  "strategyExplanation": "Why this specific subject line will get the highest open rate."
+  "strategyExplanation": "Explain how you used the business model vocabulary and specific data points."
 }
 `;
 
@@ -66,7 +91,7 @@ You are the world's most advanced Cold Email Architect.
       contents: prompt,
       config: {
         responseMimeType: "application/json",
-        temperature: 0.8, // Balanced creativity
+        temperature: 0.7,
         responseSchema: {
           type: Type.OBJECT,
           properties: {
